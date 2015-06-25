@@ -4,7 +4,8 @@
     <style name="AppTheme" parent="@android:style/Theme.Holo">
         <!-- Customize your theme here. -->
         <item name="android:actionBarStyle">@style/MaterialActionBar</item>
-        <item name="android:windowBackground">@color/background_white</item>
+        <item name="android:alertDialogTheme">@style/MaterialAlertDialogTheme</item>
+        <item name="android:windowBackground">@color/white</item>
     </style>
 
     <style name="MaterialActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
@@ -16,6 +17,15 @@
 
     <style name="MaterialActionBar.Title" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MaterialAlertDialogTheme" parent="@android:style/Theme.Holo.Light">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/abc_text_size_small_material</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
     </style>
 
 </resources>
