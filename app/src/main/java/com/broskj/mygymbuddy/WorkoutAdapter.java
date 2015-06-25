@@ -10,12 +10,15 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -32,6 +35,7 @@ public class WorkoutAdapter extends ArrayAdapter<WorkoutModel> {
     private SharedPreferences mySharedPreferences;
     private final String JSON_PREFS_KEY = "workoutsJson";
     private final String DELETE = "Are you sure you want to delete this workout?";
+    private final String RENAME = "RENAME YOUR WORKOUT";
     private ArrayList<Workout> workouts;
 
     public WorkoutAdapter(Context context, ArrayList<WorkoutModel> modelsArrayList) {
@@ -62,7 +66,9 @@ public class WorkoutAdapter extends ArrayAdapter<WorkoutModel> {
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        //Toast.makeText(context, "clicked item " + position, Toast.LENGTH_SHORT).show();
+                        /*
+                        delete
+                         */
                         if (item.getTitle().equals("Delete")) {
                             AlertDialog.Builder builder = new AlertDialog.Builder(context);
                             builder.setTitle(DELETE).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -79,7 +85,53 @@ public class WorkoutAdapter extends ArrayAdapter<WorkoutModel> {
                             AlertDialog dialog = builder.create();
                             dialog.show();
                         } else if (item.getTitle().equals("Rename")) {
-                            //edit
+                        /*
+                        rename
+                         */
+                            mySharedPreferences = context.getSharedPreferences("preferences", Context.MODE_MULTI_PROCESS);
+                            loadJson();
+                            //creates edittext to be used within the dialog and customizes it
+                            final EditText input = new EditText(context);
+                            input.requestFocus();
+                            input.setTextColor(context.getResources().getColor(R.color.black));
+                            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+                            input.setText(workouts.get(position).name);
+                            input.setSelection(0, workouts.get(position).name.length());
+
+                            //creates the dialog builder, sets the view to the edittext, and adds buttons
+                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                            builder.setView(input);
+                            builder.setTitle(RENAME).setPositiveButton("OK", null).setNegativeButton("CANCEL", null);
+                            /*
+                            creates dialog from builder, creates a listener for the dialog showing, identifies the
+                              positive button, and creates an onclicklistener for it.  this allows the dialog to
+                              remain open should the edittext be empty upon clicking OK.
+                             */
+                            final AlertDialog dialog = builder.create();
+                            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                                @Override
+                                public void onShow(DialogInterface d) {
+                                    Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                                    button.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            String name = input.getText().toString();
+                                            if (name.equals("")) {
+                                                input.requestFocus();
+                                                input.setError("WORKOUT NEEDS TITLE");
+                                            } else {
+                                                workouts.get(position).name = name;
+                                                saveJson();
+                                                //refresh listView to immediately show removed item
+                                                refresh(workouts);
+                                                dialog.dismiss();
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                            dialog.show();
                         }
                         return true;
                     }
