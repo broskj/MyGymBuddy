@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -98,25 +99,42 @@ public class MainActivity extends Activity {
         loadJson();
         try {
             System.out.println("onAddButtonClick pressed");
+            //creates edittext to be used within the dialog and customizes it
             final EditText input = new EditText(this);
             input.requestFocus();
             input.setTextColor(getResources().getColor(R.color.black));
             input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+
+            //creates the dialog builder, sets the view to the edittext, and adds buttons
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setView(input);
-            builder.setTitle(ADD_WORKOUT).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            builder.setTitle(ADD_WORKOUT).setPositiveButton("OK", null).setNegativeButton("CANCEL", null);
+
+            /*
+            creates dialog from builder, creates a listener for the dialog showing, identifies the
+              positive button, and creates an onclicklistener for it.  this allows the dialog to
+              remain open should the edittext be empty upon clicking OK.
+             */
+            final AlertDialog dialog = builder.create();
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    String name = input.getText().toString();
-                    if (name.equals("")) {
-                        input.requestFocus();
-                        input.setError("WORKOUT NEEDS TITLE");
-                    } else {
-                        addWorkout(name);
-                    }
+                public void onShow(DialogInterface d) {
+                    Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String name = input.getText().toString();
+                            if (name.equals("")) {
+                                input.requestFocus();
+                                input.setError("WORKOUT NEEDS TITLE");
+                            } else {
+                                addWorkout(name);
+                                dialog.dismiss();
+                            }
+                        }
+                    });
                 }
-            }).setNegativeButton("CANCEL", null);
-            AlertDialog dialog = builder.create();
+            });
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
             dialog.show();
         } catch (NullPointerException e) {
