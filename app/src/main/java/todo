@@ -1,1 +1,11 @@
-Test
+TODO:
+
+Misc:
+    Add activity for Exercise list and populate it with Workout information.  Maintain formatting
+        from MainActivity.
+    Find a way to control all color combinations through settings.
+    Consider changing menu background colors
+
+MainActivity:
+    Consider darkening text and overflow icon in ListView
+    Consider allowing user to move workouts up/down (or drag/drop)
