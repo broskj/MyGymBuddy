@@ -9,4 +9,5 @@
     <color name="material_brown">#795548</color>
     <color name="background_white">#eeeeee</color>
     <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
 </resources>

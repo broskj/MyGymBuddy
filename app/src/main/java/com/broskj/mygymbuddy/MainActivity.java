@@ -1,17 +1,20 @@
 package com.broskj.mygymbuddy;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Intent;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -27,6 +30,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity {
     final String JSON_PREFS_KEY = "workoutsJson";
+    final String ADD_WORKOUT = "NAME YOUR WORKOUT";
     SharedPreferences mySharedPreferences;
     SharedPreferences.Editor editor;
     Gson gson;
@@ -49,16 +53,17 @@ public class MainActivity extends Activity {
         workouts = new ArrayList<>();
         listView = (ListView) findViewById(R.id.lv_main);
         mySharedPreferences = getSharedPreferences("preferences", MODE_MULTI_PROCESS);
-        workoutsJson = mySharedPreferences.getString(JSON_PREFS_KEY, "");
     }//end declarations
 
     public void setListViewAdapter() {
         //Toast.makeText(this, "setListViewAdapter called", Toast.LENGTH_SHORT).show();
         adapter = new WorkoutAdapter(this, generateData());
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setEmptyView(findViewById(R.id.lv_empty_workouts));
+        listView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                System.out.println("listview item clicked");
                 Toast.makeText(MainActivity.this, "position is " + position, Toast.LENGTH_SHORT).show();
             }
         });
@@ -66,8 +71,18 @@ public class MainActivity extends Activity {
 
     public void loadJson() {
         gson = new Gson();
-        workouts = gson.fromJson(workoutsJson, new TypeToken<ArrayList<Workout>>() {
-        }.getType());
+        workoutsJson = mySharedPreferences.getString(JSON_PREFS_KEY, "");
+        try {
+            //Toast.makeText(this, "loadJson called", Toast.LENGTH_SHORT).show();
+            System.out.println("workoutsJson: " + workoutsJson);
+            ArrayList<Workout> temp = gson.fromJson(workoutsJson, new TypeToken<ArrayList<Workout>>() {
+            }.getType());
+            if (temp != null)
+                workouts = temp;
+        } catch (Exception e) {
+            workouts = new ArrayList<>();
+            System.out.println("exception in loadJson()");
+        }
     }//end loadJson
 
     public void saveJson() {
@@ -78,14 +93,39 @@ public class MainActivity extends Activity {
     }
 
     public void onAddButtonClick(View view) {
-        //start activity here to add information
+        //start activity or fragment here to add information
         //test with simple workout
+        loadJson();
         try {
             System.out.println("onAddButtonClick pressed");
-            workouts.add(new Workout("SL 5x5 A"));
+            final EditText input = new EditText(this);
+            input.requestFocus();
+            input.setTextColor(getResources().getColor(R.color.black));
+            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setView(input);
+            builder.setTitle(ADD_WORKOUT).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String name = input.getText().toString();
+                    if (name.equals("")) {
+                        input.requestFocus();
+                        input.setError("WORKOUT NEEDS TITLE");
+                    } else {
+                        addWorkout(name);
+                    }
+                }
+            }).setNegativeButton("CANCEL", null);
+            AlertDialog dialog = builder.create();
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            dialog.show();
         } catch (NullPointerException e) {
-            System.out.println("null pointer exception in loadJson()");
+            System.out.println("null pointer exception in onAddButtonClick()");
         }
+    }
+
+    public void addWorkout(String name) {
+        workouts.add(new Workout(name));
         setListViewAdapter();
         saveJson();
     }
@@ -97,7 +137,7 @@ public class MainActivity extends Activity {
         ArrayList<WorkoutModel> models = new ArrayList<>();
         try {
             for (int i = 0; i < workouts.size(); i++) {
-                models.add(new WorkoutModel(R.color.material_blue, workouts.get(i).name));
+                models.add(new WorkoutModel(workouts.get(i).name));
             }
         } catch (NullPointerException e) {
             System.out.println("null pointer exception in generateData()");
@@ -133,7 +173,7 @@ public class MainActivity extends Activity {
 
         switch (id) {
             case R.id.action_settings:
-                Toast.makeText(this, "Settings pushed", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Settings pushed", Toast.LENGTH_SHORT).show();
                 break;
         }
         return super.onOptionsItemSelected(item);
