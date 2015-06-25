@@ -1,8 +1,21 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="@android:style/Theme.Holo">
         <!-- Customize your theme here. -->
+        <item name="android:actionBarStyle">@style/MaterialActionBar</item>
+        <item name="android:windowBackground">@color/background_white</item>
+    </style>
+
+    <style name="MaterialActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
+        <item name="android:logo">@android:color/transparent</item>
+        <item name="android:titleTextStyle">@style/MaterialActionBar.Title</item>
+        <item name="android:background">@color/material_blue</item>
+        <item name="android:height">72dp</item>
+    </style>
+
+    <style name="MaterialActionBar.Title" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>
