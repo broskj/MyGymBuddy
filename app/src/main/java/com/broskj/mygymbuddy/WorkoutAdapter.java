@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.text.InputType;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,11 +32,11 @@ public class WorkoutAdapter extends ArrayAdapter<WorkoutModel> {
 
     private final Context context;
     private final ArrayList<WorkoutModel> modelsArrayList;
-    private Gson gson;
-    private SharedPreferences mySharedPreferences;
     private final String JSON_PREFS_KEY = "workoutsJson";
     private final String DELETE = "Are you sure you want to delete this workout?";
-    private final String RENAME = "RENAME YOUR WORKOUT";
+    private final String RENAME = "Rename Workout";
+    private Gson gson;
+    private SharedPreferences mySharedPreferences;
     private ArrayList<Workout> workouts;
 
     public WorkoutAdapter(Context context, ArrayList<WorkoutModel> modelsArrayList) {
@@ -48,7 +49,6 @@ public class WorkoutAdapter extends ArrayAdapter<WorkoutModel> {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -56,6 +56,7 @@ public class WorkoutAdapter extends ArrayAdapter<WorkoutModel> {
 
         final Button menu = (Button) rowView.findViewById(R.id.bt_menu);
         TextView titleView = (TextView) rowView.findViewById(R.id.workout_title);
+        TextView tvLastSince = (TextView) rowView.findViewById(R.id.tv_time_since);
 
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,7 +102,7 @@ public class WorkoutAdapter extends ArrayAdapter<WorkoutModel> {
                             //creates the dialog builder, sets the view to the edittext, and adds buttons
                             AlertDialog.Builder builder = new AlertDialog.Builder(context);
                             builder.setView(input);
-                            builder.setTitle(RENAME).setPositiveButton("OK", null).setNegativeButton("CANCEL", null);
+                            builder.setTitle(RENAME).setPositiveButton("OK", null).setNegativeButton("Cancel", null);
                             /*
                             creates dialog from builder, creates a listener for the dialog showing, identifies the
                               positive button, and creates an onclicklistener for it.  this allows the dialog to
@@ -141,6 +142,26 @@ public class WorkoutAdapter extends ArrayAdapter<WorkoutModel> {
             }
         });
         titleView.setText(modelsArrayList.get(position).title);
+        long duration = System.currentTimeMillis() - modelsArrayList.get(position).date;
+        if (duration == 0 || duration == -1) {
+            tvLastSince.setText("");
+        } else if (duration < 60 * DateUtils.SECOND_IN_MILLIS) {
+            if (duration / DateUtils.SECOND_IN_MILLIS < 5)
+                tvLastSince.setText("Just now");
+            else
+                tvLastSince.setText(Long.toString(duration / DateUtils.SECOND_IN_MILLIS) + "s");
+        } else if (duration < 60 * DateUtils.MINUTE_IN_MILLIS) {
+            tvLastSince.setText(Long.toString(duration / DateUtils.MINUTE_IN_MILLIS) + "m");
+        } else if (duration < 24 * DateUtils.HOUR_IN_MILLIS) {
+            tvLastSince.setText(Long.toString(duration / DateUtils.HOUR_IN_MILLIS) + "h");
+        } else if (duration < 7 * DateUtils.DAY_IN_MILLIS) {
+            tvLastSince.setText(Long.toString(duration / DateUtils.DAY_IN_MILLIS) + "d");
+        } else if (duration < 4 * DateUtils.WEEK_IN_MILLIS) {
+            tvLastSince.setText(Long.toString(duration / DateUtils.WEEK_IN_MILLIS) + "w");
+        } else if (duration < 4 * 12 * DateUtils.WEEK_IN_MILLIS/*less than one year*/) {
+            tvLastSince.setText(Long.toString(duration / (12 * DateUtils.WEEK_IN_MILLIS)) + "m");
+        } else
+            tvLastSince.setText("");
 
         return rowView;
     }//end getView
@@ -153,7 +174,7 @@ public class WorkoutAdapter extends ArrayAdapter<WorkoutModel> {
                 models.add(new WorkoutModel(workouts.get(i).name));
             }
         } catch (NullPointerException e) {
-            System.out.println("null pointer exception in WorkoutAdapter->generateData()");
+            System.out.println("null pointer exception in WorkoutAdapter->refresh()");
         }
         modelsArrayList.clear();
         modelsArrayList.addAll(models);
