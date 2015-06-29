@@ -7,14 +7,16 @@ public class WorkoutModel {
 
     public int icon;
     public String title;
+    public long date;
 
     public WorkoutModel(String title) {
-        this(-1, title);
+        this(-1, title, -1);
     }
 
-    public WorkoutModel(int icon, String title) {
+    public WorkoutModel(int icon, String title, long date) {
         super();
         this.icon = icon;
         this.title = title;
+        this.date = date;
     }
 }
