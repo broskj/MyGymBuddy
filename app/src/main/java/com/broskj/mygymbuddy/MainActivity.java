@@ -3,6 +3,7 @@ package com.broskj.mygymbuddy;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity {
     final String JSON_PREFS_KEY = "workoutsJson";
-    final String ADD_WORKOUT = "NAME YOUR WORKOUT";
+    final String ADD_WORKOUT = "New Workout";
     SharedPreferences mySharedPreferences;
     SharedPreferences.Editor editor;
     Gson gson;
@@ -50,6 +51,13 @@ public class MainActivity extends Activity {
         setListViewAdapter();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadJson();
+        setListViewAdapter();
+    }
+
     public void declarations() {
         workouts = new ArrayList<>();
         listView = (ListView) findViewById(R.id.lv_main);
@@ -64,8 +72,8 @@ public class MainActivity extends Activity {
         listView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                System.out.println("listview item clicked");
-                Toast.makeText(MainActivity.this, "position is " + position, Toast.LENGTH_SHORT).show();
+                System.out.println("MainActivity->listview item " + position + " clicked");
+                startActivity(new Intent(MainActivity.this, ExerciseActivity.class).putExtra("position", position).putExtra("workoutsJson", workoutsJson));
             }
         });
     }//end setListViewAdapter
@@ -94,8 +102,6 @@ public class MainActivity extends Activity {
     }
 
     public void onAddButtonClick(View view) {
-        //start activity or fragment here to add information
-        //test with simple workout
         loadJson();
         try {
             System.out.println("onAddButtonClick pressed");
@@ -108,7 +114,7 @@ public class MainActivity extends Activity {
             //creates the dialog builder, sets the view to the edittext, and adds buttons
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setView(input);
-            builder.setTitle(ADD_WORKOUT).setPositiveButton("OK", null).setNegativeButton("CANCEL", null);
+            builder.setTitle(ADD_WORKOUT).setPositiveButton("OK", null).setNegativeButton("Cancel", null);
 
             /*
             creates dialog from builder, creates a listener for the dialog showing, identifies the
@@ -126,7 +132,7 @@ public class MainActivity extends Activity {
                             String name = input.getText().toString();
                             if (name.equals("")) {
                                 input.requestFocus();
-                                input.setError("WORKOUT NEEDS TITLE");
+                                input.setError("Enter title");
                             } else {
                                 addWorkout(name);
                                 dialog.dismiss();
@@ -146,7 +152,8 @@ public class MainActivity extends Activity {
         workouts.add(new Workout(name));
         setListViewAdapter();
         saveJson();
-    }
+        loadJson();
+    }//end addWorkout
 
     private ArrayList<WorkoutModel> generateData() {
         /*
@@ -155,7 +162,7 @@ public class MainActivity extends Activity {
         ArrayList<WorkoutModel> models = new ArrayList<>();
         try {
             for (int i = 0; i < workouts.size(); i++) {
-                models.add(new WorkoutModel(workouts.get(i).name));
+                models.add(new WorkoutModel(-1, workouts.get(i).name, workouts.get(i).date));
             }
         } catch (NullPointerException e) {
             System.out.println("null pointer exception in generateData()");
@@ -197,4 +204,7 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }//end OnOptionsItemSelected
 
+    public void onEmptyClick(View view) {
+        onAddButtonClick(view);
+    }
 }//end class MainActivity
