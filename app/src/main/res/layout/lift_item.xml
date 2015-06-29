@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_workout_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/layer_list"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <ImageView
+        android:id="@+id/iv_icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/dumbell" />
+
+    <TextView
+        android:id="@+id/exercise_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_toRightOf="@id/iv_icon"
+        android:text="@string/hello_world_caps"
+        android:textColor="#999999"
+        android:textSize="@dimen/abc_text_size_small_material"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/exercise_title"
+        android:layout_marginLeft="4dp"
+        android:layout_toRightOf="@id/iv_icon"
+        android:text="@string/hello_world_caps"
+        android:textColor="#666666"
+        android:textSize="@dimen/abc_text_size_large_material" />
+
+    <Button
+        android:id="@+id/bt_lift_menu"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerInParent="true"
+        android:background="@drawable/ic_action_overflow" />
+
+</RelativeLayout>
