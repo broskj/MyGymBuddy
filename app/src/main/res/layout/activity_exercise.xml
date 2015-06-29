@@ -1,0 +1,38 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".com.broskj.mygymbuddy.ExerciseActivity">
+
+    <ListView
+        android:id="@+id/lv_exercises"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    <!--        android:divider="@color/material_blue"
+            android:dividerHeight="1.0sp" /> -->
+
+    <TextView
+        android:id="@+id/lv_empty_exercises"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:alpha=".5"
+        android:gravity="center"
+        android:onClick="onEmptyClick"
+        android:paddingBottom="36dp"
+        android:text="@string/tv_empty_exercises"
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:textStyle="bold|italic" />
+
+    <ImageButton
+        android:id="@+id/bt_finish"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="24dp"
+        android:background="@drawable/circle_button"
+        android:onClick="onFinishButtonClick"
+        android:src="@drawable/ic_action_accept" />
+
+
+</RelativeLayout>
