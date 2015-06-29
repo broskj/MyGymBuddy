@@ -4,5 +4,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world_caps">HELLO WORLD</string>
-    <string name="tv_empty_workouts">NO WORKOUTS ADDED</string>
+    <string name="tv_empty_workouts">NO WORKOUTS ADDED\nTAP TO ADD</string>
+    <string name="tv_empty_exercises">NO EXERCISES ADDED\nTAP TO ADD</string>
 </resources>
