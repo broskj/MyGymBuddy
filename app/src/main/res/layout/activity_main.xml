@@ -7,29 +7,29 @@
     <ListView
         android:id="@+id/lv_main"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-    <!--        android:divider="@color/material_blue"
-            android:dividerHeight="1.0sp" /> -->
+        android:layout_height="wrap_content"
+        android:isScrollContainer="false" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:paddingBottom="36dp"
-        android:layout_height="wrap_content"
         android:id="@+id/lv_empty_workouts"
-        android:textSize="@dimen/abc_text_size_large_material"
-        android:textStyle="bold|italic"
-        android:text="@string/tv_empty_workouts"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:alpha=".5"
-        android:layout_centerInParent="true" />
+        android:gravity="center"
+        android:onClick="onEmptyClick"
+        android:paddingBottom="36dp"
+        android:text="@string/tv_empty_workouts"
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:textStyle="bold|italic" />
 
     <ImageButton
-        android:onClick="onAddButtonClick"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_margin="24dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:layout_margin="24dp"
         android:background="@drawable/circle_button"
+        android:onClick="onAddButtonClick"
         android:src="@drawable/ic_action_new" />
 
 
