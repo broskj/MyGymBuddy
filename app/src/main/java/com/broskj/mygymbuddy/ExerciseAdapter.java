@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.text.InputType;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,11 +15,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupMenu;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 /**
@@ -78,12 +82,13 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseModel> {
         }
 
         TextView titleView = (TextView) view.findViewById(R.id.exercise_title);
+        TextView timerView = (TextView) view.findViewById(R.id.tv_timer);
 
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 PopupMenu popupMenu = new PopupMenu(context, menu);
-                popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
+                popupMenu.getMenuInflater().inflate(R.menu.popup_menu_exercises, popupMenu.getMenu());
 
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
@@ -155,6 +160,108 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseModel> {
                             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                             dialog.show();
                         }
+                        /*
+                        edit
+                         */
+                        else if (item.getTitle().equals("Edit")) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                            LayoutInflater inflater = LayoutInflater.from(context);
+
+                            final String title = currentWorkout.exercises.get(currentWorkoutIndex).getName();
+
+                            builder.setTitle(title).setView(inflater.inflate(R.layout.add_exercise_0, null))
+                                    .setPositiveButton("Finish", null).setNegativeButton("Cancel", null);
+
+                            final AlertDialog dialog = builder.create();
+                            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                                @Override
+                                public void onShow(DialogInterface d) {
+                                    Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                                    final RadioGroup group = (RadioGroup) dialog.findViewById(R.id.rg_cardio_interval);
+                                    final RadioButton rbNone = (RadioButton) dialog.findViewById(R.id.rb_cardio_interval_none),
+                                            rbEach = (RadioButton) dialog.findViewById(R.id.rb_cardio_interval_each);
+                                    final EditText durationHrs = (EditText) dialog.findViewById(R.id.et_duration_hrs),
+                                            durationMins = (EditText) dialog.findViewById(R.id.et_duration_mins),
+                                            incrementMins = (EditText) dialog.findViewById(R.id.et_increment_mins);
+
+                                    final boolean cIncrement = currentWorkout.exercises.get(position).increment;
+                                    final int cTime = currentWorkout.exercises.get(position).time;
+                                    final int cIncrementTime = currentWorkout.exercises.get(position).incrementTime;
+
+                                    if (cIncrement) {
+                                        rbEach.setChecked(true);
+                                        rbNone.setChecked(false);
+                                        incrementMins.setEnabled(true);
+                                    } else {
+                                        rbEach.setChecked(false);
+                                        rbNone.setChecked(true);
+                                        incrementMins.setEnabled(false);
+                                    }
+
+                                    durationHrs.setText(Integer.toString(cTime / 60));
+                                    durationHrs.requestFocus();
+                                    durationHrs.setSelection(0, durationHrs.getText().toString().length());
+                                    durationMins.setText(Integer.toString(cTime % 60));
+                                    if (cIncrementTime != 0)
+                                        incrementMins.setText(Integer.toString(cIncrementTime));
+
+                                    group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                                        @Override
+                                        public void onCheckedChanged(RadioGroup group, int checkedId) {
+                                            if (checkedId == rbNone.getId()) {
+                                                rbEach.setChecked(false);
+                                                incrementMins.setEnabled(false);
+                                            } else if (checkedId == rbEach.getId()) {
+                                                rbNone.setChecked(false);
+                                                incrementMins.setEnabled(true);
+                                            }
+                                        }
+                                    });
+
+                                    button.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            final String dHrs = durationHrs.getText().toString(),
+                                                    dMins = durationMins.getText().toString(),
+                                                    iMins = incrementMins.getText().toString();
+
+                                            if (dHrs.equals("")) {
+                                                durationHrs.requestFocus();
+                                                durationHrs.setError("NEEDS TIME");
+                                            } else if (dMins.equals("")) {
+                                                durationMins.requestFocus();
+                                                durationMins.setError("NEEDS TIME");
+                                            } else if (rbEach.isChecked() && iMins.equals("")) {
+                                                incrementMins.requestFocus();
+                                                incrementMins.setError("NEEDS TIME");
+                                            } else {
+                                                boolean increment;
+                                                int time, incrementTime;
+
+                                                if (rbEach.isChecked()) {
+                                                    increment = true;
+                                                    time = (Integer.parseInt(dHrs) * 60) + Integer.parseInt(dMins);
+                                                    incrementTime = Integer.parseInt(iMins);
+                                                } else {
+                                                    increment = false;
+                                                    time = (Integer.parseInt(dHrs) * 60) + Integer.parseInt(dMins);
+                                                    incrementTime = 0;
+                                                }
+
+                                                Exercise temp = new Exercise(title, increment, 0, time, incrementTime);
+                                                currentWorkout.exercises.set(position, temp);
+
+                                                saveJson();
+                                                refresh(workouts);
+                                                dialog.dismiss();
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                            dialog.show();
+                        }
                         return true;
                     }
                 });
@@ -163,9 +270,22 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseModel> {
         });
 
         titleView.setText(modelsArrayList.get(position).title);
+        timerView.setText(formatTimer(currentWorkout.exercises.get(currentWorkoutIndex).time * 60000/*to millis from mins*/));
 
         return view;
     }//end getView
+
+    public String formatTimer(long t) {
+        DecimalFormat df = new DecimalFormat("##");
+        if (t < DateUtils.HOUR_IN_MILLIS)
+            return df.format(t / DateUtils.MINUTE_IN_MILLIS) + "m:"
+                    + df.format((t / DateUtils.MINUTE_IN_MILLIS) / DateUtils.SECOND_IN_MILLIS) + "s";
+        else
+            return df.format(t / DateUtils.HOUR_IN_MILLIS) + "h:"
+                    + df.format((t % DateUtils.HOUR_IN_MILLIS) / DateUtils.MINUTE_IN_MILLIS) + "m;"
+                    + df.format(((t % DateUtils.HOUR_IN_MILLIS) % DateUtils.MINUTE_IN_MILLIS) /
+                    DateUtils.SECOND_IN_MILLIS) + "s";
+    }//end formatTimer
 
     public void refresh(ArrayList<Workout> workouts) {
         ArrayList<ExerciseModel> models = new ArrayList<>();
