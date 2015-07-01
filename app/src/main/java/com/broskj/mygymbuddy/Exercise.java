@@ -57,13 +57,16 @@ public class Exercise {
     }
 
     public void incrementWeight() {
-        weight[0] += incrementWeight;
-        for (int i = 1; i < weight.length; i++)
-            weight[i] += incrementWeight;
+        if (increment) {
+            weight[0] += incrementWeight;
+            for (int i = 1; i < weight.length; i++)
+                weight[i] += incrementWeight;
+        }
     }//end incrementWeight
 
     public void incrementTime() {
-        time += incrementTime;
+        if (increment)
+            time += incrementTime;
     }
 
 }//end class Exercise
