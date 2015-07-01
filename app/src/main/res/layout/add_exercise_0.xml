@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?><!-- cardio exercise -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:isScrollContainer="false"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter a duration:"
+        android:textColor="#666666" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <EditText
+            android:id="@+id/et_duration_hrs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:hint="hrs"
+            android:inputType="number"
+            android:selectAllOnFocus="true"
+            android:textColor="@color/black" />
+
+        <EditText
+            android:id="@+id/et_duration_mins"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:hint="mins"
+            android:inputType="number"
+            android:selectAllOnFocus="true"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Increment interval:"
+        android:textColor="#666666" />
+
+    <RadioGroup
+        android:id="@+id/rg_cardio_interval"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <RadioButton
+            android:id="@+id/rb_cardio_interval_none"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="None"
+            android:textColor="#999999" />
+
+        <RadioButton
+            android:id="@+id/rb_cardio_interval_each"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Each complete workout"
+            android:textColor="#999999" />
+
+    </RadioGroup>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Increment amount:"
+        android:textColor="#666666" />
+
+    <EditText
+        android:id="@+id/et_increment_mins"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:enabled="false"
+        android:gravity="center"
+        android:hint="mins"
+        android:inputType="number"
+        android:selectAllOnFocus="true"
+        android:textColor="@color/black" />
+
+</LinearLayout>

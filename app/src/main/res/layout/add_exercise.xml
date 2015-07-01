@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:isScrollContainer="false"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Name your exercise:"
+        android:textColor="#666666" />
+
+    <EditText
+        android:id="@+id/et_exercise_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="e.g. Squats"
+        android:inputType="textCapCharacters"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Choose exercise type:"
+        android:textColor="#666666" />
+
+    <RadioGroup
+        android:id="@+id/rg_exercise_type"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <RadioButton
+            android:id="@+id/rb_type_cardio"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="Cardio"
+            android:textColor="#999999" />
+
+        <RadioButton
+            android:id="@+id/rb_type_weightlifting"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Weightlifting"
+            android:textColor="#999999" />
+
+    </RadioGroup>
+
+</LinearLayout>
