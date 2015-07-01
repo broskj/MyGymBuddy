@@ -108,6 +108,7 @@ public class MainActivity extends Activity {
             //creates edittext to be used within the dialog and customizes it
             final EditText input = new EditText(this);
             input.requestFocus();
+            input.setHint("e.g. Leg Day");
             input.setTextColor(getResources().getColor(R.color.black));
             input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
 
