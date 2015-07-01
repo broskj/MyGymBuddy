@@ -2,13 +2,13 @@ TODO:
 
 Misc:
 	Create better icon
-    Add activity for Exercise list and populate it with Workout information.  Maintain formatting
-      from MainActivity.
     Find a way to control all color combinations through settings.
-    Consider changing menu background colors
+    Implement sort by name, date, etc. through menu option -> dialog
+    Ensure action bar title matches workout name after changing name
 
 MainActivity:
-    Consider darkening text and overflow icon in ListView
-		Possibly darken text and add subtext (of similar color to existing text) listing last 
-		  completed date
-    Consider allowing user to move workouts up/down (or drag/drop)
+
+ExerciseActivity:
+    Add dialog to input exercise
+    Implement a timer for cardio exercises
+    Format weightlifting exercise layouts to include weight scheme
