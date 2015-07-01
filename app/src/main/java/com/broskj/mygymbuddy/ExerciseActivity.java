@@ -2,14 +2,22 @@ package com.broskj.mygymbuddy;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -135,6 +143,7 @@ public class ExerciseActivity extends Activity {
         builder.setTitle(finishDialog).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                //increment time/weight
                 currentWorkout.completeWorkout();
                 workouts.set(position, currentWorkout);
                 refresh();
@@ -152,15 +161,157 @@ public class ExerciseActivity extends Activity {
     public void addExercise() {
         //Toast.makeText(this, "Add exercise clicked", Toast.LENGTH_SHORT).show();
         //open activity to add exercise, and add it to current workout
-        currentWorkout.addExercise(new Exercise("exercise", false, 0, 3600, 0));
-        workouts.set(position, currentWorkout);
-        refresh();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+
+        builder.setTitle("New Exercise").setView(inflater.inflate(R.layout.add_exercise, null))
+                .setPositiveButton("Next", null).setNegativeButton("Cancel", null);
+
+        final AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface d) {
+                Button button = dialog.getButton(Dialog.BUTTON_POSITIVE);
+                final RadioGroup group = (RadioGroup) dialog.findViewById(R.id.rg_exercise_type);
+                final RadioButton rbCardio = (RadioButton) dialog.findViewById(R.id.rb_type_cardio),
+                        rbWeightlifting = (RadioButton) dialog.findViewById(R.id.rb_type_weightlifting);
+
+                group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        if (group.getCheckedRadioButtonId() == rbCardio.getId())
+                            rbWeightlifting.setChecked(false);
+                        else if (group.getCheckedRadioButtonId() == rbWeightlifting.getId())
+                            rbCardio.setChecked(false);
+                    }
+                });
+
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        EditText input = (EditText) dialog.findViewById(R.id.et_exercise_title);
+                        final String title = input.getText().toString();
+
+                        if (title.equals("")) {
+                            input.requestFocus();
+                            input.setError("EXERCISE NEEDS TITLE");
+                        } else {
+                            switch (group.getCheckedRadioButtonId()) {
+                                case R.id.rb_type_cardio:
+                                    manageCardio(title);
+                                    //currentWorkout.addExercise(new Exercise(title, increment, 0, time, incrementTime));
+                                    //workouts.set(position, currentWorkout);
+                                    //refresh();
+                                    break;
+                                case R.id.rb_type_weightlifting:
+                                    manageWeightlifting(false, title);
+                                    //currentWorkout.addExercise(title, increment, repScheme, weightScheme, 1, sets, reps, weight, incrementWeight);
+                                    //workouts.set(position, currentWorkout);
+                                    //refresh();
+                                    break;
+                            }
+                            dialog.dismiss();
+                        }
+                    }
+                });
+            }
+        });
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        dialog.show();
     }//end addExercise
 
+    public void manageCardio(final String title) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+
+        builder.setTitle(title.toUpperCase()).setView(inflater.inflate(R.layout.add_exercise_0, null))
+                .setPositiveButton("Finish", null).setNegativeButton("Cancel", null);
+
+        final AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface d) {
+                Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                final RadioGroup group = (RadioGroup) dialog.findViewById(R.id.rg_cardio_interval);
+                final RadioButton rbNone = (RadioButton) dialog.findViewById(R.id.rb_cardio_interval_none),
+                        rbEach = (RadioButton) dialog.findViewById(R.id.rb_cardio_interval_each);
+                final EditText durationHrs = (EditText) dialog.findViewById(R.id.et_duration_hrs),
+                        durationMins = (EditText) dialog.findViewById(R.id.et_duration_mins),
+                        incrementMins = (EditText) dialog.findViewById(R.id.et_increment_mins);
+
+                group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        if (checkedId == rbNone.getId()) {
+                            rbEach.setChecked(false);
+                            incrementMins.setEnabled(false);
+                        } else if (checkedId == rbEach.getId()) {
+                            rbNone.setChecked(false);
+                            incrementMins.setEnabled(true);
+                        }
+                    }
+                });
+
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final String dHrs = durationHrs.getText().toString(),
+                                dMins = durationMins.getText().toString(),
+                                iMins = incrementMins.getText().toString();
+
+                        if (dHrs.equals("")) {
+                            durationHrs.requestFocus();
+                            durationHrs.setError("NEEDS TIME");
+                        } else if (dMins.equals("")) {
+                            durationMins.requestFocus();
+                            durationMins.setError("NEEDS TIME");
+                        } else if (rbEach.isChecked() && iMins.equals("")) {
+                            incrementMins.requestFocus();
+                            incrementMins.setError("NEEDS TIME");
+                        } else {
+                            boolean increment;
+                            int time, incrementTime;
+
+                            if (rbEach.isChecked()) {
+                                increment = true;
+                                time = (Integer.parseInt(dHrs) * 60) + Integer.parseInt(dMins);
+                                incrementTime = Integer.parseInt(iMins);
+                            } else {
+                                increment = false;
+                                time = (Integer.parseInt(dHrs) * 60) + Integer.parseInt(dMins);
+                                incrementTime = 0;
+                            }
+                            currentWorkout.addExercise(new Exercise(title, increment, 0, time, incrementTime));
+
+                            refresh();
+                            dialog.dismiss();
+                        }
+                    }
+                });
+            }
+        });
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        dialog.show();
+
+    }//end manageCardio
+
+    public void manageWeightlifting(final boolean edit, final String title) {
+        if (edit) {
+            boolean increment = currentWorkout.exercises.get(position).increment,
+                    weightScheme = currentWorkout.exercises.get(position).weightScheme,
+                    repScheme = currentWorkout.exercises.get(position).repScheme;
+            int sets = currentWorkout.exercises.get(position).sets;
+            int[] reps = currentWorkout.exercises.get(position).reps;
+            double[] weight = currentWorkout.exercises.get(position).weight;
+            double incrementWeight = currentWorkout.exercises.get(position).incrementWeight;
+        }
+
+    }//end manageWeightlifting
+
     public void refresh() {
-        setListViewAdapter();
         saveJson();
         loadJson();
+        setListViewAdapter();
     }//end refresh
 
     public void exitActivity() {
