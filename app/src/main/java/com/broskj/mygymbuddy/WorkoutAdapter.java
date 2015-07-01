@@ -55,8 +55,8 @@ public class WorkoutAdapter extends ArrayAdapter<WorkoutModel> {
         View rowView = inflater.inflate(R.layout.workout_item, parent, false);
 
         final Button menu = (Button) rowView.findViewById(R.id.bt_menu);
-        TextView titleView = (TextView) rowView.findViewById(R.id.workout_title);
-        TextView tvLastSince = (TextView) rowView.findViewById(R.id.tv_time_since);
+        final TextView titleView = (TextView) rowView.findViewById(R.id.workout_title);
+        final TextView tvLastSince = (TextView) rowView.findViewById(R.id.tv_time_since);
 
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,7 +123,7 @@ public class WorkoutAdapter extends ArrayAdapter<WorkoutModel> {
                                             } else {
                                                 workouts.get(position).name = name;
                                                 saveJson();
-                                                //refresh listView to immediately show removed item
+                                                //refresh listView to immediately show renamed item
                                                 refresh(workouts);
                                                 dialog.dismiss();
                                             }
@@ -142,36 +142,39 @@ public class WorkoutAdapter extends ArrayAdapter<WorkoutModel> {
             }
         });
         titleView.setText(modelsArrayList.get(position).title);
-        long duration = System.currentTimeMillis() - modelsArrayList.get(position).date;
-        if (duration == 0 || duration == -1) {
-            tvLastSince.setText("");
-        } else if (duration < 60 * DateUtils.SECOND_IN_MILLIS) {
-            if (duration / DateUtils.SECOND_IN_MILLIS < 5)
-                tvLastSince.setText("Just now");
-            else
-                tvLastSince.setText(Long.toString(duration / DateUtils.SECOND_IN_MILLIS) + "s");
-        } else if (duration < 60 * DateUtils.MINUTE_IN_MILLIS) {
-            tvLastSince.setText(Long.toString(duration / DateUtils.MINUTE_IN_MILLIS) + "m");
-        } else if (duration < 24 * DateUtils.HOUR_IN_MILLIS) {
-            tvLastSince.setText(Long.toString(duration / DateUtils.HOUR_IN_MILLIS) + "h");
-        } else if (duration < 7 * DateUtils.DAY_IN_MILLIS) {
-            tvLastSince.setText(Long.toString(duration / DateUtils.DAY_IN_MILLIS) + "d");
-        } else if (duration < 4 * DateUtils.WEEK_IN_MILLIS) {
-            tvLastSince.setText(Long.toString(duration / DateUtils.WEEK_IN_MILLIS) + "w");
-        } else if (duration < 4 * 12 * DateUtils.WEEK_IN_MILLIS/*less than one year*/) {
-            tvLastSince.setText(Long.toString(duration / (12 * DateUtils.WEEK_IN_MILLIS)) + "m");
-        } else
-            tvLastSince.setText("");
+        tvLastSince.setText(setDate(modelsArrayList.get(position).date));
 
         return rowView;
     }//end getView
+
+    public String setDate(long date) {
+        long duration = System.currentTimeMillis() - date;
+        if (duration == 0 || duration == -1) {
+            return "";
+        } else if (duration < 60 * DateUtils.SECOND_IN_MILLIS) {
+            if (duration / DateUtils.SECOND_IN_MILLIS < 5)
+                return "Just now";
+            else
+                return (Long.toString(duration / DateUtils.SECOND_IN_MILLIS) + "s");
+        } else if (duration < 60 * DateUtils.MINUTE_IN_MILLIS) {
+            return (Long.toString(duration / DateUtils.MINUTE_IN_MILLIS) + "m");
+        } else if (duration < 24 * DateUtils.HOUR_IN_MILLIS) {
+            return (Long.toString(duration / DateUtils.HOUR_IN_MILLIS) + "h");
+        } else if (duration < 7 * DateUtils.DAY_IN_MILLIS) {
+            return (Long.toString(duration / DateUtils.DAY_IN_MILLIS) + "d");
+        } else if (duration < 4 * DateUtils.WEEK_IN_MILLIS) {
+            return (Long.toString(duration / DateUtils.WEEK_IN_MILLIS) + "w");
+        } else if (duration < 4 * 12 * DateUtils.WEEK_IN_MILLIS/*less than one year*/) {
+            return (Long.toString(duration / (12 * DateUtils.WEEK_IN_MILLIS)) + "m");
+        } else
+            return "";
+    }//end setDate
 
     public void refresh(ArrayList<Workout> workouts) {
         ArrayList<WorkoutModel> models = new ArrayList<>();
         try {
             for (int i = 0; i < workouts.size(); i++) {
-                System.out.println("workout " + i + ": " + workouts.get(i).name);
-                models.add(new WorkoutModel(workouts.get(i).name));
+                models.add(new WorkoutModel(-1, workouts.get(i).name, workouts.get(i).date));
             }
         } catch (NullPointerException e) {
             System.out.println("null pointer exception in WorkoutAdapter->refresh()");
