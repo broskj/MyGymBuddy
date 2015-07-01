@@ -7,12 +7,18 @@
         android:id="@+id/action_add_exercise"
         android:icon="@drawable/ic_action_new"
         android:orderInCategory="100"
-        android:title="Add Exercise"
-        app:showAsAction="ifRoom" />
+        android:title="@string/add_exercise"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_arrange_by"
+        android:orderInCategory="101"
+        android:title="@string/arrange_by"
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="101"
+        android:orderInCategory="102"
         android:title="@string/action_settings"
         app:showAsAction="never" />
 
