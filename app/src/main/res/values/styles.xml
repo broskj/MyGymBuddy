@@ -13,7 +13,8 @@
         <item name="android:logo">@android:color/transparent</item>
         <item name="android:titleTextStyle">@style/MaterialActionBar.Title</item>
         <item name="android:background">@color/material_blue</item>
-        <item name="android:height">72dp</item>
+        <item name="android:height">60dp</item>
+        <!-- 48, 60, or 72 here -->
         <item name="android:popupBackground">@color/material_blue</item>
     </style>
 
