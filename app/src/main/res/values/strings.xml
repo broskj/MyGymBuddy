@@ -6,4 +6,6 @@
     <string name="hello_world_caps">HELLO WORLD</string>
     <string name="tv_empty_workouts">NO WORKOUTS ADDED\nTAP TO ADD</string>
     <string name="tv_empty_exercises">NO EXERCISES ADDED\nTAP TO ADD</string>
+    <string name="arrange_by">Arrange by...</string>
+    <string name="add_exercise">Add Exercise</string>
 </resources>
