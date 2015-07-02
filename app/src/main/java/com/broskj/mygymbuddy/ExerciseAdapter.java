@@ -24,6 +24,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Kyle on 6/25/2015.
@@ -40,6 +41,7 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseModel> {
     private ArrayList<Workout> workouts;
     private Workout currentWorkout;
     private int currentWorkoutIndex;
+    private Counter counter;
 
     public ExerciseAdapter(Context _context, ArrayList<ExerciseModel> _modelsArrayList) {
         super(_context, -1, _modelsArrayList);
@@ -60,6 +62,9 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseModel> {
 
         View view = convertView;
         if (view == null) {
+            /*
+            set layout of listView items based on exercise type
+             */
             switch (currentWorkout.exercises.get(position).type) {
                 case 0: //cardio
                     view = inflater.inflate(R.layout.cardio_item, parent, false);
@@ -71,6 +76,9 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseModel> {
         }
 
         switch (currentWorkout.exercises.get(position).type) {
+            /*
+            initializes menu button in listview item
+             */
             case 0: //cardio
                 menu = (Button) view.findViewById(R.id.bt_cardio_menu);
                 break;
@@ -116,6 +124,7 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseModel> {
                          */
                         else if (item.getTitle().equals("Rename")) {
                             //creates edittext to be used within the dialog and customizes it
+                            //need to consider using a layoutinflater to inflate a dialog with an xml layout instead
                             final EditText input = new EditText(context);
                             input.requestFocus();
                             input.setTextColor(context.getResources().getColor(R.color.black));
@@ -185,9 +194,10 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseModel> {
                                             incrementMins = (EditText) dialog.findViewById(R.id.et_increment_mins);
 
                                     final boolean cIncrement = currentWorkout.exercises.get(position).increment;
-                                    final int cTime = currentWorkout.exercises.get(position).time;
-                                    final int cIncrementTime = currentWorkout.exercises.get(position).incrementTime;
+                                    final long cTime = currentWorkout.exercises.get(position).time;
+                                    final long cIncrementTime = currentWorkout.exercises.get(position).incrementTime;
 
+                                    //sets increment buttons based on user preferences
                                     if (cIncrement) {
                                         rbEach.setChecked(true);
                                         rbNone.setChecked(false);
@@ -198,12 +208,13 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseModel> {
                                         incrementMins.setEnabled(false);
                                     }
 
-                                    durationHrs.setText(Integer.toString(cTime / 60));
+                                    durationHrs.setText(Long.toString(TimeUnit.MILLISECONDS.toHours(cTime)));
                                     durationHrs.requestFocus();
                                     durationHrs.setSelection(0, durationHrs.getText().toString().length());
-                                    durationMins.setText(Integer.toString(cTime % 60));
+                                    durationMins.setText(Long.toString(TimeUnit.MILLISECONDS.toMinutes(cTime) -
+                                            TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(cTime))));
                                     if (cIncrementTime != 0)
-                                        incrementMins.setText(Integer.toString(cIncrementTime));
+                                        incrementMins.setText(Long.toString(TimeUnit.MILLISECONDS.toMinutes(cIncrementTime)));
 
                                     group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                                         @Override
@@ -231,6 +242,9 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseModel> {
                                             } else if (dMins.equals("")) {
                                                 durationMins.requestFocus();
                                                 durationMins.setError("NEEDS TIME");
+                                            } else if (Integer.parseInt(dMins) >= 60) {
+                                                durationMins.requestFocus();
+                                                durationMins.setError("TOO MANY MINUTES");
                                             } else if (rbEach.isChecked() && iMins.equals("")) {
                                                 incrementMins.requestFocus();
                                                 incrementMins.setError("NEEDS TIME");
@@ -270,22 +284,11 @@ public class ExerciseAdapter extends ArrayAdapter<ExerciseModel> {
         });
 
         titleView.setText(modelsArrayList.get(position).title);
-        timerView.setText(formatTimer(currentWorkout.exercises.get(currentWorkoutIndex).time * 60000/*to millis from mins*/));
+        counter = new Counter(timerView, currentWorkout.exercises.get(currentWorkoutIndex).time, 1000);
+        timerView.setText(counter.formatTime(currentWorkout.exercises.get(currentWorkoutIndex).time));
 
         return view;
     }//end getView
-
-    public String formatTimer(long t) {
-        DecimalFormat df = new DecimalFormat("##");
-        if (t < DateUtils.HOUR_IN_MILLIS)
-            return df.format(t / DateUtils.MINUTE_IN_MILLIS) + "m:"
-                    + df.format((t / DateUtils.MINUTE_IN_MILLIS) / DateUtils.SECOND_IN_MILLIS) + "s";
-        else
-            return df.format(t / DateUtils.HOUR_IN_MILLIS) + "h:"
-                    + df.format((t % DateUtils.HOUR_IN_MILLIS) / DateUtils.MINUTE_IN_MILLIS) + "m;"
-                    + df.format(((t % DateUtils.HOUR_IN_MILLIS) % DateUtils.MINUTE_IN_MILLIS) /
-                    DateUtils.SECOND_IN_MILLIS) + "s";
-    }//end formatTimer
 
     public void refresh(ArrayList<Workout> workouts) {
         ArrayList<ExerciseModel> models = new ArrayList<>();
