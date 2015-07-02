@@ -1,5 +1,7 @@
 package com.broskj.mygymbuddy;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by Kyle on 6/24/2015.
  * <p/>
@@ -16,8 +18,8 @@ public class Exercise {
     boolean repScheme; //whether or not the user is following a rep scheme (10-8-6)
     boolean weightScheme; //whether or not the user is following a weight scheme (135-155-185)
     int type; //either 0 or 1, maybe more in the future
-    int time; //measured in seconds, converted into hours:minutes;seconds
-    int incrementTime; //measured in seconds, but typically used for adding minutes to 'time'
+    long time; //measured in millis, converted into hours:minutes;seconds
+    long incrementTime; //measured in seconds, but typically used for adding minutes to 'time'
     int sets; //number of sets per workout
     int[] reps; //number of reps per set.  size initialized to sets
     double weight[]; //amount of initial weight, incrementable
@@ -31,8 +33,8 @@ public class Exercise {
         this.name = _name.toUpperCase();
         this.increment = _increment;
         this.type = _type;
-        this.time = _time;
-        this.incrementTime = _incrementTime;
+        this.time = _time * TimeUnit.MINUTES.toMillis(_time);
+        this.incrementTime = _incrementTime * TimeUnit.MINUTES.toMillis(_incrementTime);
     }//end cardio constructor
 
     Exercise(String _name, boolean _increment, boolean _repScheme, boolean _weightScheme, int _type, int _sets, int[] _reps,
